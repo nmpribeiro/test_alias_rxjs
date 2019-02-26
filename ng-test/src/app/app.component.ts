@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { LibService } from '@lib/lib/lib.service';
 import { Observable } from 'rxjs/internal/Observable';
+// import { Observable } from 'rxjs'; // => Works with this one
 
 @Component({
   selector: 'app-root',
@@ -13,11 +14,23 @@ export class AppComponent {
   items: Object[];
   observer: Observable<any[]>;
 
-  constructor(lib: LibService) {
-    this.items = lib.getItems();
+  constructor(private _lib: LibService) {
+    this.observer = _lib.itemChanged.subscribe( (items: any[]) => this.items = items );
+    this.items = this._lib.getItems();
+  }
 
-    this.observer = lib.itemChanged.subscribe(
-      (items: any[]) => this.items = items
-    );
+  private addItem(key: string): void {
+    this._lib.addItem(key);
+  }
+
+  private removeItem(key: string): void {
+    this._lib.deleteItem(key);
+  }
+
+  public onAddBtnClick( val: string): void {
+    this.addItem(val);
+  }
+  public onRemoveBtnClick( val: string ): void {
+    this.removeItem(val);
   }
 }

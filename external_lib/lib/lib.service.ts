@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
 class Item {
-    constructor(public id: number = Math.random()) {}
+    constructor(public key: string, public id: number = Math.random()) {}
 }
 
 /**
@@ -17,17 +17,19 @@ export class LibService {
     public itemChanged = new Subject<Item[]>();
 
     public addItem(key: string) {
-        this.items.set(key, new Item());
+        if (this.items.has(key)) return;
+        this.items.set(key, new Item(key));
         this.emit();
     }
 
     public deleteItem(key: string) {
+        if (!this.items.has(key)) return;
         this.items.delete(key);
         this.emit();
     }
 
     private emit() {
-        this.itemChanged.next(this.items);
+        this.itemChanged.next(this.getItems());
     }
 
     getItems(): Item[] {
